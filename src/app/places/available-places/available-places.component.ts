@@ -20,40 +20,48 @@ export class AvailablePlacesComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   // constructor(private httpClient: HttpClient) {}
-    
+
   ngOnInit() {
     this.isFetching.set(true)
-   const subscription =  this.httpClient.get<{places: Place[]}>('http://localhost:3000/places'
-  //  , {    observe: 'response'   }
-  ).pipe(
-    map((resData) => resData.places),
-    catchError((error) => {
-      console.log(error)
-      return throwError(
-        () =>
-          new Error(
-            'Something went wrong, please try again later.'
-          )
+    const subscription = this.httpClient.get<{ places: Place[] }>('http://localhost:3000/places'
+      //  , {    observe: 'response'   }
+    ).pipe(
+      map((resData) => resData.places),
+      catchError((error) => {
+        console.log(error)
+        return throwError(
+          () =>
+            new Error(
+              'Something went wrong, please try again later.'
+            )
         )
-    })
-  )
-  .subscribe({
-      next: (places) => {
-        //console.log(event)
-        //console.log(response.body?.places)
-        //console.log(resData.places)
-        this.places.set(places)
-      },
-      error: (error: Error) => {        
-       this.error.set(error.message) 
-      },
-      complete: () =>{
-        this.isFetching.set(false)
-      }
-    });
+      })
+    )
+      .subscribe({
+        next: (places) => {
+          //console.log(event)
+          //console.log(response.body?.places)
+          //console.log(resData.places)
+          this.places.set(places)
+        },
+        error: (error: Error) => {
+          this.error.set(error.message)
+        },
+        complete: () => {
+          this.isFetching.set(false)
+        }
+      });
 
     this.destroyRef.onDestroy(() => {
       subscription.unsubscribe();
+    });
+  }
+
+  onSelectPlace(selectedPlace: Place) {
+    this.httpClient.put('http://localhost:3000/user-places', {
+      placeId: selectedPlace.id
+    }).subscribe({
+      next: (resData) => console.log(resData)
     });
   }
 }
