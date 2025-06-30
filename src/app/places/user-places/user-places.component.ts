@@ -12,13 +12,13 @@ import { PlacesService } from '../places.service';
   styleUrl: './user-places.component.css',
   imports: [PlacesContainerComponent, PlacesComponent],
 })
-export class UserPlacesComponent implements OnInit{
-    isFetching = signal(false);
-    error = signal('');
-    private placesService = inject(PlacesService);
-    private destroyRef = inject(DestroyRef);
-    places = this.placesService.loadedUserPlaces
-  
+export class UserPlacesComponent implements OnInit {
+  isFetching = signal(false);
+  error = signal('');
+  private placesService = inject(PlacesService);
+  private destroyRef = inject(DestroyRef);
+  places = this.placesService.loadedUserPlaces
+
   ngOnInit() {
     this.isFetching.set(true)
     const subscription = this.placesService.loadUserPlaces()
@@ -30,6 +30,14 @@ export class UserPlacesComponent implements OnInit{
           this.isFetching.set(false)
         }
       });
+
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  }
+
+  onRemovePlace(place: Place) {
+    const subscription = this.placesService.removeUserPlace(place).subscribe();
 
     this.destroyRef.onDestroy(() => {
       subscription.unsubscribe();
